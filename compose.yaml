@@ -1,0 +1,24 @@
+services:
+  mongodb:
+    image: mongo:7.0.32-rc1-jammy
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: StrongPass123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  blog:
+    build: .
+    container_name: blog-app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:

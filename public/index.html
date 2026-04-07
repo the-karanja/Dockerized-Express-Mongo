@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+.post { border:1px solid #ddd; padding:10px; margin:10px 0 }
+</style>
+</head>
+<body>
+
+<h1>Simple Blog</h1>
+
+<input id="title" placeholder="Title" />
+<br/><br/>
+<textarea id="content" placeholder="Content"></textarea>
+<br/>
+<button onclick="createPost()">Create</button>
+
+<h2>Posts</h2>
+<div id="posts"></div>
+
+<script>
+async function loadPosts(){
+ const res = await fetch('/posts')
+ const posts = await res.json()
+
+ document.getElementById('posts').innerHTML = posts.map(p=>`
+  <div class="post">
+   <input value="${p.title}" onchange="update('${p._id}', this.value, 'title')" />
+   <br/>
+   <textarea onchange="update('${p._id}', this.value, 'content')">${p.content}</textarea>
+   <br/>
+   <button onclick="deletePost('${p._id}')">Delete</button>
+  </div>
+ `).join('')
+}
+
+async function createPost(){
+ await fetch('/posts',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+   title: title.value,
+   content: content.value
+  })
+ })
+ loadPosts()
+}
+
+async function update(id,value,field){
+ await fetch('/posts/'+id,{
+  method:'PUT',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({[field]:value})
+ })
+}
+
+async function deletePost(id){
+ await fetch('/posts/'+id,{method:'DELETE'})
+ loadPosts()
+}
+
+loadPosts()
+</script>
+
+</body>
+</html>
